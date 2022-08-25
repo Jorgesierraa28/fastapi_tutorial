@@ -1,4 +1,5 @@
 from cgitb import text
+from enum import unique
 from time import timezone
 from tkinter.tix import INTEGER
 from sqlalchemy import Column, Integer, String, Boolean
@@ -15,3 +16,9 @@ class Post(Base):
     publish = Column(Boolean, server_default='TRUE', nullable = False)
     created_at = Column(TIMESTAMP(timezone=True), nullable = False, server_default = text('now()'))
 
+class Users(Base):
+    __tablename__ = "users"
+    email = Column(String,nullable=False, unique= True)
+    password = Column(String, nullable=False)
+    id = Column(Integer,primary_key = True, nullable = False)
+    created_at = Column(TIMESTAMP(timezone=True), nullable = False, server_default = text('now()'))

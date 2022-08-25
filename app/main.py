@@ -1,3 +1,4 @@
+from logging import raiseExceptions
 from os import stat
 from sqlite3 import Cursor
 from turtle import update
@@ -6,13 +7,14 @@ from urllib import response
 from fastapi import FastAPI, Response, status, HTTPException, Depends
 from fastapi.params import Body
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time 
-from . import models,schema
+from . import models,schema, utils
 from .database import engine, get_db
+
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -33,12 +35,7 @@ while True:
        time.sleep(2)
 
 
-
-
-
-
-
-@app.get("/posts")
+@app.get("/posts",response_model=List[schema.PostResponse] )
 def get_posts(db: Session = Depends(get_db)):
     # cursor.execute(""" SELECT * FROM posts """)
     # posts = cursor.fetchall()
@@ -95,3 +92,23 @@ def update_post (id: int, post: schema.CreatePost, db: Session = Depends(get_db)
     db.commit()
     return  updated_post.first()
     
+@app.post('/user', status_code=status.HTTP_201_CREATED, response_model=schema.UserOut)
+def create_user(user: schema.UserCreate, db: Session = Depends(get_db)):
+    
+    #hash the password 
+
+    hashed_password = utils.hash(user.password)
+    user.password = hashed_password
+    
+    new_user = models.Users(**user.dict())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+
+@app.get('/users/{id}', response_model=schema.UserOut)
+def get_user(id: int, db: Session = Depends(get_db)):
+    user = db.query(models.Users).filter(models.Users.id == id).first()
+    if not user: 
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= f'this id: {id} doesnt exist')
+    return user 
