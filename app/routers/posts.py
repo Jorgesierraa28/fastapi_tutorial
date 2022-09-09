@@ -35,7 +35,7 @@ def create_post(post: schema.CreatePost, db: Session = Depends(get_db), current_
     # new_post = cursor.fetchone()
     # conn.commit()
     print(current_user.email)
-    new_post = models.Post(**post.dict())
+    new_post = models.Post(owner_id = current_user.id, **post.dict())
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
@@ -57,10 +57,14 @@ def delete_post(id: int, response: Response,db: Session = Depends(get_db), curre
     # cursor.execute(""" DELETE FROM posts WHERE id = %s RETURNING *""", (str(id)))
     # deleted_post = cursor.fetchone()
     # conn.commit()
-    deleted_post = db.query(models.Post).filter(models.Post.id == id)
-    if not deleted_post.first():
+    deleted_post_query = db.query(models.Post).filter(models.Post.id == id)
+    deleted_post = deleted_post_query.first()
+    if not deleted_post:
      raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= f'this id:{id} doesnt exist')
-    deleted_post.delete(synchronize_session=False)
+    if deleted_post.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorize to delete the post")
+
+    deleted_post_query.delete(synchronize_session=False)
     db.commit()
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -72,9 +76,13 @@ def update_post (id: int, post: schema.CreatePost, db: Session = Depends(get_db)
     # cursor.execute(""" UPDATE posts set title = %s, content= %s, publish = %s where id = %s RETURNING *""", (post.title,post.content,post.publish,str(id)))
     # updated_post = cursor.fetchone()
     # conn.commit()
-    updated_post = db.query(models.Post).filter(models.Post.id == id)
-    if updated_post.first() == None:
+    updated_post_query = db.query(models.Post).filter(models.Post.id == id)
+    updated_post = updated_post_query.first()
+    if updated_post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail= f'this id:{id} doesnt exist')
-    updated_post.update(post.dict(), synchronize_session=False)
+    if updated_post.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorize to update the post")
+
+    updated_post_query.update(post.dict(), synchronize_session=False)
     db.commit()
-    return  updated_post.first()
+    return  updated_post_query.first()
