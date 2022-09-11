@@ -7,7 +7,7 @@ from urllib import response
 from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
 from fastapi.params import Body
 from pydantic import BaseModel
-from typing import  List
+from typing import  List, Optional
 from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -22,10 +22,10 @@ router = APIRouter(
 )
 
 @router.get("/",response_model=List[schema.PostResponse] )
-def get_posts(db: Session = Depends(get_db)):
+def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), limit: int = 10, skip: int = 0, search: Optional[str]=""):
     # cursor.execute(""" SELECT * FROM posts """)
     # posts = cursor.fetchall()
-    posts = db.query(models.Post).all()
+    posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
     return posts
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model= schema.PostResponse)
