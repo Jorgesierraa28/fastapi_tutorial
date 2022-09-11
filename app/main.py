@@ -3,6 +3,8 @@ from fastapi.params import Body
 from . import models
 from .database import engine
 from .routers import posts, users, auth
+from pydantic import BaseSettings
+
 
 
 models.Base.metadata.create_all(bind=engine)
