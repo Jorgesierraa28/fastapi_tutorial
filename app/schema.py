@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional
 from xmlrpc.client import boolean
 from pydantic import BaseModel,EmailStr
+from pydantic.types import conint
 
 
 class BasePost(BaseModel):
@@ -28,6 +29,10 @@ class PostResponse(BasePost):
 
     class Config: 
         orm_mode = True
+
+class Vote(BaseModel):
+    post_id: int 
+    dir: conint(le=1)
 
 class UserCreate(BaseModel):
     email: EmailStr
