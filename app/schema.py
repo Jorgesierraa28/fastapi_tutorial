@@ -26,7 +26,7 @@ class PostResponse(BasePost):
     created_at: datetime
     owner_id: int 
     owner: UserOut
-
+    
     class Config: 
         orm_mode = True
 
@@ -38,6 +38,12 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str 
 
+class PostOut(BasePost):
+    Post: PostResponse
+    votes: int 
+
+    class Config: 
+        orm_mode = True
 
 
 class UserLogin(BaseModel):
