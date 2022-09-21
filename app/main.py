@@ -3,7 +3,6 @@ from fastapi.params import Body
 from . import models
 from .database import engine
 from .routers import posts, users, auth,vote
-from pydantic import BaseSettings
 from fastapi.middleware.cors import CORSMiddleware
 
 

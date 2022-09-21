@@ -1,17 +1,5 @@
-from logging import raiseExceptions
-from os import stat
-from sqlite3 import Cursor
-from turtle import update
 from sqlalchemy.orm import Session
-from urllib import response
-from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
-from fastapi.params import Body
-from pydantic import BaseModel
-from typing import  List
-from random import randrange
-import psycopg2
-from psycopg2.extras import RealDictCursor
-import time 
+from fastapi import  status, HTTPException, Depends, APIRouter
 from .. import models,schema
 from .. import utils
 from ..database import get_db
