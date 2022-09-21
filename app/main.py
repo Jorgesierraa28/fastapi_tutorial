@@ -32,6 +32,6 @@ app.include_router(vote.router)
 
 @app.get('/')
 def main():
-    return {"message": "hello wordl"}
+    return {"message": "hello world"}
 
 
