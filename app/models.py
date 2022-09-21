@@ -1,8 +1,6 @@
 from cgitb import text
 from enum import unique
 from time import timezone
-from tkinter import CASCADE
-from tkinter.tix import INTEGER
 from sqlalchemy import Column, Integer, String, Boolean,ForeignKey
 from sqlalchemy.orm import relationship
 from .database import Base
